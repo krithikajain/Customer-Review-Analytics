@@ -11,8 +11,6 @@ This project implements a semi-supervised learning workflow using PySpark. It pr
 - Iterative training with gradual integration of pseudo-labeled data.
 - Evaluation of model performance using metrics such as accuracy, precision, recall, and a confusion matrix.
 
-## Steps in the Code : provided in pseudo code file in pseudo code dir
-
 ## How to Run
 1. Ensure PySpark is installed and configured on your system.
 2. Place the `amazon.csv` file in the working directory.
