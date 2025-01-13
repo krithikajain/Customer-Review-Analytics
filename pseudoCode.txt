@@ -1,1 +1,239 @@
+Pseudo code: 
 
+ 
+
+1. Initialize Environment 
+
+Import Required Libraries 
+
+  - pyspark.sql for handling DataFrames. 
+
+  - pyspark.ml for machine learning operations. 
+
+  - pyspark.mllib.evaluation for evaluation metrics. 
+
+- import standard Python libraries for custom UDFs and type definitions. 
+
+Set Up Spark Session 
+
+Set Checkpoint Directory 
+
+2. Load Data 
+
+Define File Path 
+
+- Specifies the file path to the CSV dataset amazon.csv. 
+
+Read Dataset 
+
+- Loads the CSV file into a PySpark DataFrame with the header and schema automatically inferred. 
+
+3. Data Preprocessing 
+
+Check for Null Values 
+
+- Counts the null values in each column. 
+
+- Converts the PySpark DataFrame to Pandas for easier null value analysis. 
+
+Handle Missing Values 
+
+- Drops rows where review_title or review_text is null. 
+
+Remove Duplicates 
+
+- Counts duplicate rows and removes them. 
+
+- Ensures the data is unique. 
+
+Modify Class Labels 
+
+- Converts class_index = 2 to class_index = 0 for binary classification. 
+
+Combine Text Fields 
+
+- Merges review_title and review_text into a single column named combined_text. 
+
+Clean Text Data 
+
+- Converts text to lowercase. 
+
+- Removes special characters, numbers, and retains only alphabets and spaces. 
+
+Drop Unnecessary Columns 
+
+- Removes intermediate columns such as review_title, review_text, and combined_text. 
+
+4. Tokenization and Stop Words Removal 
+
+Tokenize Text 
+
+- Uses PySpark's Tokenizer to split cleaned_text into words. 
+
+Remove Stop Words 
+
+- Uses StopWordsRemover to eliminate common words that don’t contribute to sentiment. 
+
+Filter Tokens with UDF 
+
+- Defines a UDF to: 
+
+  - Remove empty strings. 
+
+  - Exclude tokens shorter than three characters. 
+
+- Applies this UDF to clean the tokenized text further. 
+
+5. Feature Extraction 
+
+Apply HashingTF 
+
+- Converts tokens into term frequency vectors using HashingTF with 10,000 features. 
+
+Apply IDF 
+
+- Computes the TF-IDF (Term Frequency-Inverse Document Frequency) for each term frequency vector. 
+
+Perform PCA 
+
+- Reduces dimensionality of the TF-IDF vectors to 100 components using Principal Component Analysis (PCA). 
+
+Pad/Truncate Vectors 
+
+- Defines a function to: 
+
+  - Pad vectors with zeros if shorter than required length. 
+
+  - Truncate vectors if they exceed the length (though unlikely with PCA). 
+
+- Applies this function to ensure all feature vectors are of fixed size. 
+
+Drop Intermediate Columns 
+
+- Removes columns such as tokens, term_frequency, and tfidf_features that are no longer needed. 
+
+6. Initial Semi-Supervised Training Setup 
+
+Split Dataset 
+
+- Divides the data into labeled and unlabeled subsets with a 50%-50% split. 
+
+Cache the Splits 
+
+- Caches both subsets for efficient access in iterative training. 
+
+Set Training Parameters 
+
+- Initializes variables: 
+
+  - temperature: for pseudo-labeling adjustments. 
+
+  - cooling_rate: to reduce temperature over iterations. 
+
+Train Initial Model 
+
+- Trains a Random Forest classifier on the labeled data. 
+
+7. First Iteration of Semi-Supervised Learning 
+
+Generate Pseudo-Labels 
+
+- Uses the trained model to predict labels for the unlabeled data. 
+
+Prepare Pseudo-Labeled Data 
+
+- Renames the predicted column to match the schema of labeled data. 
+
+- Casts the prediction column to integer. 
+
+Combine Labeled and Pseudo-Labeled Data 
+
+- Merges the pseudo-labeled data with the labeled dataset. 
+
+Retrain the Model 
+
+- Trains a new Random Forest model using the combined dataset. 
+
+Evaluate the Model 
+
+- Calculates and prints: 
+
+  - Accuracy 
+
+  - Precision 
+
+  - Recall 
+
+Update Temperature 
+
+- Reduces the temperature by multiplying with the cooling_rate. 
+
+8. Experiment 1: Fixed Split Iterative Training 
+
+Repeat for Multiple Iterations 
+
+- For a fixed number of iterations: 
+
+  1. Generate pseudo-labels. 
+
+  2. Merge labeled and pseudo-labeled data. 
+
+  3. Retrain the model. 
+
+  4. Evaluate model performance. 
+
+  5. Monitor Out-of-Bag Error (OOBE) to detect overfitting. 
+
+Adjust Unlabeled Data 
+
+- Gradually include unlabeled data in pseudo-labeling as iterations progress. 
+
+9. Experiment 2: Gradual Data Splits 
+
+Split Data for Training and Testing 
+
+- Shuffle the dataset and: 
+
+  - Reserve 20% for testing. 
+
+  - Use 80% for training. 
+
+Split Training Data into Labeled and Unlabeled 
+
+- Initially use 25% labeled data. 
+
+- Gradually increase the size of the unlabeled subset. 
+
+Iterative Training 
+
+- For each iteration: 
+
+  1. Train the model on labeled data. 
+
+  2. Predict pseudo-labels for a chunk of unlabeled data. 
+
+  3. Combine labeled and pseudo-labeled data. 
+
+  4. Evaluate performance and monitor OOBE. 
+
+  5. Include more unlabeled data for pseudo-labeling in the next iteration. 
+
+10. Final Testing 
+
+Predict on Test Data 
+
+- Use the final model to make predictions on the testing dataset. 
+
+Compute Confusion Matrix 
+
+- Defines a function to: 
+
+  - Compute the confusion matrix. 
+
+  - Display the matrix for evaluation. 
+
+11. Clean Up 
+
+Stop Spark Session 
+
+- Terminates the Spark session to release allocated resources. 
