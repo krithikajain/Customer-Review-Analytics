@@ -1,14 +1,20 @@
 
-# Semi-Supervised Learning with PySpark
+# Semi-Supervised Learning using Random Forest
 
-## Overview
-This project implements a semi-supervised learning workflow using PySpark. It processes text data from the `train.csv` file and performs iterative training with labeled and pseudo-labeled datasets to classify 3.5+ million Amazon reviews.
+This project implements a semi-supervised learning workflow using PySpark. It processes text data from the `train.csv` file and performs iterative training with labeled and pseudo-labeled datasets to classify 3.5+ million Amazon reviews. 
+
+Here we address the challenge of limited labeled datasets, leveraging distributed computing for efficient processing on large-scale data.
+
 ## Dataset
 Amazon Reviews Polarity Dataset:
 Size: 1.8M training samples of each class, 200K testing samples.
+
 Classes:
-Class 1: Negative sentiment
-Class 2: Positive sentiment
+
+✏️ Class 1: Negative sentiment
+
+✏️ Class 2: Positive sentiment
+
 source: https://www.kaggle.com/datasets/yacharki/amazon-reviews-for-sa-binary-negative-positive-csv/data
 
 ## Features
